@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>    <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>     <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>     <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>dl-api-admin</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="stylesheets/main.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.min.js"></script>
+
+    <!-- Twitter Bootstrap CDN -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+  </head>
+  <body>
+
+    <!-- Header / Navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">dl-api-admin</a>
+        </div>
+        <div class="container">
+          <ul class="nav navbar-nav" id="admin-nav">
+            <!-- items added dynamically -->
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Login -->
+    <div class="container" id="admin-login">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Login</h3>
+          </div>
+          <div class="panel-body">
+            <form class="form-inline" role="form">
+                <div class="form-group">
+                <label class="sr-only" for="exampleInputEmail2">Email</label>
+                <input type="email" class="form-control" id="adminEmail" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                <label class="sr-only" for="exampleInputPassword2">Password</label>
+                <input type="password" class="form-control" id="adminPassword" placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-primary" data-method="authenticate">Login</button>
+            </form>
+          </div>
+        </div>
+        
+    </div>
+    
+    <!-- Dynamic content -->
+    <div class="container" id="admin-content">
+
+    </div>
+
+    <!-- JavaScript libraries from CDN, with local fallback -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <!--<script>window.jQuery || document.write('<script src="javascripts/vendor/jquery-1.10.1.min.js"><\/script>')</script>-->
+
+    <!-- Bootstrap JS -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    
+    <!-- Embed configuration options -->
+    <script>window.CONFIG_API || document.write('<script src="javascripts/config.js"><\/script>')</script>
+    <script>window.DL || document.write('<script src="javascripts/dl.min.js"><\/script>')</script>
+
+    <!-- JavaScript App -->
+    <script src="javascripts/app.js"></script>
+    
+    <script>require('init');</script>
+  </body>
+</html>
