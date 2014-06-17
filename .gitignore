@@ -36,6 +36,3 @@ bower_components/
 
 # Sublime Text 2
 *.sublime-workspace
-
-# DL-API
-app/assets/javascripts/config.js
