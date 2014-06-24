@@ -1,13 +1,18 @@
+DLAdminCollection = require 'dl-admin/models/collection'
+
 module.exports = class DLAdmin
 
   constructor: () ->
+    if not window.dl? then console.error 'DLAdmin: dl-api-javascript needs to be available as window.dl'
+    
     @nav = $("#admin-nav")
     @login = $("#admin-login")
+    @logoutWidget = $("#admin-logout-widget")
     @content = $("#admin-content")
     @models = {}
     @defaultModel = null
 
-    @nav.click @onContentClick
+    $("nav").click @onContentClick
     @content.click @onContentClick
     @login.click @onContentClick
 
@@ -21,10 +26,10 @@ module.exports = class DLAdmin
     # Fugly hack \o/
     method = $(e.target).data("method")
     if method?
-      console.log method, params
+      # console.log method, params
       params = $(e.target).data("params")
       if not params?
-        @[method]() 
+        @[method]()
       else
         @[method](params)
       return false
@@ -48,7 +53,7 @@ module.exports = class DLAdmin
     @updateLocation()
 
   # History
-  # Note: location hash # is being used to avoid relative path import conflicts
+  # Note: location hash # is being used to avoid relative path conflicts
   updateLocation: () ->
 
     hash = location.hash.split("/")
@@ -70,18 +75,14 @@ module.exports = class DLAdmin
 
     @show collection, whereField, whereID, method, false
 
-  # Model fields:
-  # name
-  # collection
-  # fields [{name, type}, {..}]
-  # relationships [{collection, sourceField, targetField},  {..}]
   addModel: (modelObject) ->
-    if not @defaultModel? then @defaultModel = modelObject
-    @models[modelObject.collection] = modelObject
-    @nav.append("<li><a href='#' data-target='#{modelObject.collection}'>#{modelObject.name}</a></li>")
+    newModel = new DLAdminCollection(modelObject)
+    if not @defaultModel? then @defaultModel = newModel
+    @models[newModel.collection] = newModel
+    @nav.append("<li><a href='#' data-target='#{newModel.collection}'>#{newModel.name}</a></li>")
 
 
-  # OMG
+  # Authentication
   authenticate: () ->
     $(".alert", @login).remove()
     $("button[type=submit]", @login).addClass("disabled")
@@ -93,6 +94,10 @@ module.exports = class DLAdmin
       
   onAuthSuccess: () =>
     @updateLocation()
+    # $(".dropdown-toggle", @loginWidget).html "#{dl.auth.currentUser.email} <b class=\"caret\"></b>"
+    
+    # Re-enable login button
+    $("button[type=submit]", @login).removeClass("disabled")
 
   onAuthFail: () =>
     @login.append '<div class="alert alert-danger alert-dismissable">
@@ -101,7 +106,11 @@ module.exports = class DLAdmin
       </div>'
     # Re-enable login button
     $("button[type=submit]", @login).removeClass("disabled")
-    
+
+  logout: () =>
+    dl.auth.logout()
+    @content.html("")
+    @updateLocation()
 
   show: (collectionName, whereField, whereID, method, updateHistory = true) ->
 
@@ -110,8 +119,11 @@ module.exports = class DLAdmin
     # Auth verification (terrible!)
     if dl.auth.currentUser?
       @login.hide()
+      $(".dropdown-toggle", @loginWidget).html "#{dl.auth.currentUser.email} <b class=\"caret\"></b>"
+      @logoutWidget.show()
     else
       @login.show()
+      @logoutWidget.hide()
       return
     
     # Visualization methods (view / edit)
@@ -125,7 +137,7 @@ module.exports = class DLAdmin
         history.pushState(null, null, "#/#{method}/#{collectionName}")
 
     # Clear content
-    @content.html("Loading ...")
+    @content.html("<img class='loading' src='./images/loading.gif'>")
     model = @models[collectionName]
 
     # Highlight item on nav
@@ -139,7 +151,7 @@ module.exports = class DLAdmin
         @showModelCreate(model, null, whereField, whereID)
       else
         # {type: "belongs_to", collection: "hwcconversations", sourceField:"conversation_id", targetField: "id"}
-        console.log belongs_to
+        # console.log belongs_to
         apiCall = dl.collection(belongs_to.collection)
         apiCall.get().then (data) =>
           @showModelCreate(model, data, whereField, whereID)

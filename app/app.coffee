@@ -2,9 +2,7 @@
 DLAdmin = require "dl-admin"
 
 module.exports = class App
-  constructor: ->
-    # console.log "App constructor"
-
+  
   init: ->
     # console.log "App init"
     window.dl = new DL.Client( window.CONFIG_API );
