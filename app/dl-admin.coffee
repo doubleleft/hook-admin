@@ -325,7 +325,10 @@ module.exports = class DLAdmin
           input.append "<br><button type='button' class='btn btn-xs btn-default' data-method='removeImage' data-params='#{inputID}' data-field='#{inputID}'><span class='glyphicon glyphicon-trash'></span> Remover imagem</button><br>"
           input.append "<br><img src='#{inputValue}' data-field='#{inputID}' />"
         input.append "<input type='file' id='#{inputID}'>"
-        
+    
+      if field.type == "date"        
+        input.append "<input type='date' class='form-control' id='#{inputID}' value='#{inputValue}'>"
+
         # input.append '<p class="help-block">Dica: blablabla</p>'
       # else 
         # input.append "<input type='text' class='form-control' id='#{inputID}' value='#{object[field.name]}'>"
@@ -378,6 +381,9 @@ module.exports = class DLAdmin
           input.append "<br><button type='button' class='btn btn-xs btn-default' data-method='removeImage' data-params='#{inputID}' data-field='#{inputID}'><span class='glyphicon glyphicon-trash'></span> Remover imagem</button><br>"
           input.append "<br><img src='#{inputValue}' data-field='#{inputID}' />"
         input.append "<input type='file' id='#{inputID}'>"
+
+      if field.type == "date"        
+        input.append "<input type='date' class='form-control' id='#{inputID}'>"
         
         # input.append '<p class="help-block">Dica: blablabla</p>'
       # else 
