@@ -15,8 +15,8 @@ module.exports = class App
         collection: "dlacategories", 
         editable: true,
         fields: [
-          {name:"name", type:"text"}, 
-          {name:"description", type:"text", multiLine: true}
+          {name:"name", label:"Nome", type:"text"}, 
+          {name:"description", label: "Descrição", type:"text", multiLine: true}
         ],
         relationships: [
           {type: "has_many", collection: "dlaposts", sourceField:"_id", targetField: "category_id"}
@@ -30,8 +30,8 @@ module.exports = class App
         collection: "dlaposts",
         editable: true,
         fields: [
-          {name:"text", type:"text", multiLine: true},
-          {name:"image", type:"image"}
+          {name:"text", label: "Texto", type:"text", multiLine: true},
+          {name:"image", label: "Foto", type:"image"}
         ],
         relationships: [
           {type: "belongs_to", collection: "dlacategories", sourceField:"category_id", targetField: "_id"}

@@ -222,7 +222,7 @@ module.exports = class DLAdmin
 
     # Fields
     for field in model.fields
-      header.append "<th>#{field.name}</th>"
+      header.append "<th>#{field.label}</th>"
 
     # Relationships
     for relationship in model.relationships
@@ -311,7 +311,7 @@ module.exports = class DLAdmin
       inputID = "_#{field.name}"
       inputValue = object[field.name]
 
-      input.append "<label for='#{inputID}'>#{field.name}</label>"
+      input.append "<label for='#{inputID}'>#{field.label}</label>"
       if field.type == "text"
         multiLine = if field.multiLine? then field.multiLine else false
         if multiLine
@@ -364,7 +364,7 @@ module.exports = class DLAdmin
       # console.log "fields #{model.fields.length}, #{field.name}, #{field.type}"
       input = $('<div class="form-group"></div>')
       inputID = "_#{field.name}"
-      input.append "<label for='#{inputID}'>#{field.name}</label>"
+      input.append "<label for='#{inputID}'>#{field.label}</label>"
       if field.type == "text"
         multiLine = if field.multiLine? then field.multiLine else false
         if multiLine

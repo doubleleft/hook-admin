@@ -49,8 +49,8 @@ The syntax is the same for CoffeeScript and JavaScript usage.
         collection: "dlacategories", 
         editable: true,
         fields: [
-          {name:"name", type:"text"}, 
-          {name:"description", type:"text", multiLine: true}
+          {name:"name", label: "Nome", type:"text"}, 
+          {name:"description", label: "Description", type:"text", multiLine: true}
         ],
         relationships: [
           {type: "has_many", collection: "dlaposts", sourceField:"_id", targetField: "category_id"}
