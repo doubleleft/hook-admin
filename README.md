@@ -1,6 +1,6 @@
-dl-api-admin
-============
-Administrative interface built on top of [dl-api-javascript](https://github.com/doubleleft/dl-api-javascript) and [Bootstrap](http://getbootstrap.com/).
+hook-admin
+==========
+Administrative interface built on top of [hook-javascript](https://github.com/doubleleft/hook-javascript) and [Bootstrap](http://getbootstrap.com/).
 
 Setup
 -----
@@ -21,7 +21,7 @@ Open your development server at [http://localhost:3333](). Remember auto-reload 
 
 ### API Environment for Development
 
-By default this project uses the `dl-api-admin-ddll` app.
+By default this project uses the `hook-admin-ddll` app.
 
 The default login credentials are:
 
@@ -36,10 +36,10 @@ Use `app/assets/index.html` and `app/app.coffee` as a starting point.
 The syntax is the same for CoffeeScript and JavaScript usage.
 
 
-    // Initialize dl-api
+    // Initialize hook
     window.dl = new DL.Client( ......  )
 
-    // Create new dl-api-admin instance
+    // Create new hook-admin instance
     admin = new DLAdmin()
 
     // Add your models
@@ -73,5 +73,5 @@ The syntax is the same for CoffeeScript and JavaScript usage.
       }
     )
 
-    // Initialize dl-api-admin after models have been set
+    // Initialize hook-admin after models have been set
     admin.init()
