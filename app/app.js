@@ -2,7 +2,7 @@ var YAML = require('yamljs'),
     app = angular.module('admin', ['ng-admin']),
     config = YAML.load('config/app.yaml');
 
-app.config(function (NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
+app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
   var hook = new Hook.Client(config.credentials);
   console.log(hook);
 
