@@ -1,0 +1,7 @@
+{
+  "name": "app",
+  "dependencies": {
+    "ng-admin": "~0.4.0",
+    "hook-javascript": "~0.2.0"
+  }
+}

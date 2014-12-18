@@ -1,0 +1,28 @@
+{
+  "name": "hook-admin",
+  "version": "1.0.0",
+  "description": "hook administrator interface",
+  "main": "app/app.js",
+  "dependencies": {
+    "lazy-assets": "^0.1.5",
+    "yamljs": "~0.2.1",
+    "hook-javascript": "~0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "lazy-assets app",
+    "build": "lazy-assets app public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doubleleft/hook-admin.git"
+  },
+  "keywords": [ "hook", "admin" ],
+  "author": "Endel Dreyer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/doubleleft/hook-admin/issues"
+  },
+  "homepage": "https://github.com/doubleleft/hook-admin"
+}
