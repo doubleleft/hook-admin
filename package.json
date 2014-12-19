@@ -4,7 +4,7 @@
   "description": "hook administrator interface",
   "main": "app/app.js",
   "dependencies": {
-    "lazy-assets": "^0.1.5",
+    "lazy-assets": "^0.1.6",
     "yamljs": "~0.2.1",
     "hook-javascript": "~0.2.0"
   },
