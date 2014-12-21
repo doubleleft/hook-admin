@@ -13,7 +13,9 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
   var hook = new Hook.Client(appConfig.credentials);
 
   // set the main API endpoint for this admin
-  var app = new Application('hook');
+  var app = new Application(appConfig.title);
+  document.title = appConfig.title;
+
   app.baseApiUrl(appConfig.credentials.endpoint);
   app.transformParams(function(params) {
     var q = hook.collection('dummy');
