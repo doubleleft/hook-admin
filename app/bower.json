@@ -2,7 +2,10 @@
   "name": "app",
   "dependencies": {
     "angular": "~1.3.7",
-    "ng-admin": "0.4.0",
+    "ng-admin": "marmelab/ng-admin#ce05e71072099d06473485d46207c06ccd9571a2",
     "hook-javascript": "~0.2.0"
+  },
+  "resolutions": {
+    "angular": "~1.3.8"
   }
 }
