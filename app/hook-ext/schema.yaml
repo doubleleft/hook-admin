@@ -1,0 +1,26 @@
+#
+# 'projects' schema
+#
+projects:
+  attributes:
+    - name: name
+      type: string
+      required: true
+    - name: client_name
+      type: string
+      required: true
+    - name: description
+      type: string
+      required: true
+    - name: href
+      type: string
+      required: true
+    - name: highlights
+      type: boolean
+      default: false
+    - name: thumb_image
+      type: string
+    - name: large_image
+      type: string
+    - name: logo_image
+      type: string

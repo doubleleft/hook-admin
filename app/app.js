@@ -1,6 +1,7 @@
 var YAML = require('yamljs'),
     app = angular.module('admin', ['ng-admin']),
-    config = YAML.load('config/app.yaml');
+    appConfig = YAML.load('config/app.yaml'),
+    schema = YAML.load('hook-ext/schema.yaml');
 
 app.controller('main', function ($scope, $rootScope, $location) {
   $rootScope.$on('$stateChangeSuccess', function () {
@@ -9,11 +10,11 @@ app.controller('main', function ($scope, $rootScope, $location) {
 });
 
 app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
-  var hook = new Hook.Client(config.credentials);
+  var hook = new Hook.Client(appConfig.credentials);
 
   // set the main API endpoint for this admin
   var app = new Application('hook');
-  app.baseApiUrl(config.credentials.endpoint);
+  app.baseApiUrl(appConfig.credentials.endpoint);
   app.transformParams(function(params) {
     var q = hook.collection('dummy');
 
@@ -31,54 +32,94 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
         query = JSON.stringify(q.buildQuery());
 
     if (query !== "{}") {
-      obj[ JSON.stringify(q.buildQuery()) + "&"] = "&";
+      obj[""] = "&" + query;
     }
 
     return obj;
   });
 
-  var projects = new Entity('projects');
-  projects.url(function(view, entityId) {
-    return 'collection/' + view.entity.config.name + (entityId ? '/' + entityId : "");
-  });
-  projects.identifier(new Field('_id'));
+  for (var collectionName in schema) {
+    let collectionConfig = (appConfig.collections && appConfig.collections[collectionName]) || {};
 
-  var views = [
-    projects.config.dashboardView,
-    projects.config.listView,
-    projects.config.showView,
-    projects.config.creationView,
-    projects.config.editionView,
-    projects.config.deletionView
-  ];
+    // by default, allow 'show', 'edit' and 'delete' actions.
+    if (!collectionConfig.list || !collectionConfig.list.actions) {
+      collectionConfig.list.actions = ['show', 'edit', 'delete'];
+    }
 
-  for (var i=0;i<views.length;i++) {
-    views[i].title(projects.config.label);
-    views[i].headers(function() {
-      return {
-        'X-App-Id': config.credentials.app_id,
-        'X-App-Key': config.credentials.key
-      }
+    var entity = new Entity(collectionName);
+    entity.url(function(view, entityId) {
+      return 'collection/' + view.entity.config.name + (entityId ? '/' + entityId : "");
     });
+    entity.identifier(new Field('_id'));
 
-    views[i].addField(new Field('_id'));
-    views[i].addField(new Field('client_name'));
-    views[i].addField(new Field('description'));
-    views[i].addField(new Field('href'));
-    // views[i].addField(new Field('highlights'));
-    // views[i].addField(new Field('thumb_image'));
-    // views[i].addField(new Field('large_image'));
-    // views[i].addField(new Field('logo_image'));
+    // overwrite label
+    if (collectionConfig.label) {
+      entity.config.label = collectionConfig.label;
+    }
+
+    var sections = {
+      'dashboard': entity.config.dashboardView,
+      'list': entity.config.listView,
+      'show': entity.config.showView,
+      'creation': entity.config.creationView,
+      'edition': entity.config.editionView,
+      'deletion': entity.config.deletionView
+    };
+
+    //
+    // create collection fields based on schema definition
+    // https://github.com/doubleleft/hook/wiki/Schema-definition
+    //
+    var fields = {};
+    schema[collectionName].attributes.push({ name: 'created_at', type: 'date' });
+    schema[collectionName].attributes.push({ name: 'updated_at', type: 'date' });
+    for (var i=0;i<schema[collectionName].attributes.length;i++) {
+      var attribute = schema[collectionName].attributes[i];
+      fields[ attribute.name ] = new Field(attribute.name).type(attribute.type);
+    }
+
+    for (let section in sections) {
+      let view = sections[section],
+          sectionCollectionConfig = collectionConfig[section] || {};
+
+      view.title(sectionCollectionConfig.title || entity.config.label);
+
+      if (sectionCollectionConfig.description) {
+        view.description(sectionCollectionConfig.description);
+      }
+
+      view.headers(function() {
+        return {
+          'X-App-Id': appConfig.credentials.app_id,
+          'X-App-Key': appConfig.credentials.key
+        }
+      });
+
+      for (var fieldName in fields) {
+        if (!sectionCollectionConfig.fields || sectionCollectionConfig.fields.indexOf(fieldName) >= 0) {
+          view.addField(fields[fieldName]);
+        }
+      }
+
+      // list view: actions
+      if (sectionCollectionConfig.actions) {
+        view.listActions(sectionCollectionConfig.actions);
+      }
+    }
+
+    // menu view: icon
+    if (collectionConfig.menu) {
+      let menu = collectionConfig.menu;
+      if (menu.icon) {
+        entity.menuView().icon('<span class="glyphicon glyphicon-' + menu.icon + '"></span>');
+      }
+      if (menu.order) {
+        entity.menuView().order(menu.order);
+      }
+    }
+
+    app.addEntity(entity);
   }
-
-  // list view: actions
-  projects.listView().listActions(['show', 'edit', 'delete']);
-
-  // menu view: icon
-  projects.menuView().icon('<span class="glyphicon glyphicon-file"></span>');
-
-  app.addEntity(projects);
 
   NgAdminConfigurationProvider.configure(app);
 });
-
