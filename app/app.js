@@ -29,6 +29,13 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
     if (params.per_page) { q.limit(params.per_page); }
     if (params.page > 0 && params.per_page) { q.offset(params.per_page * (params.page - 1)) }
 
+    // // quick filters
+    // if (params.where) {
+    //   for (let field in params.where) {
+    //     q.where(field, params.where[field]);
+    //   }
+    // }
+
     // ng-admin hack to use JSON on query string
     var obj = {},
         query = JSON.stringify(q.buildQuery());
@@ -84,12 +91,7 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
       let view = sections[section],
           sectionCollectionConfig = collectionConfig[section] || {};
 
-      view.title(sectionCollectionConfig.title || entity.config.label);
-
-      if (sectionCollectionConfig.description) {
-        view.description(sectionCollectionConfig.description);
-      }
-
+      // default app headers
       view.headers(function() {
         return {
           'X-App-Id': appConfig.credentials.app_id,
@@ -97,15 +99,45 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
         }
       });
 
+      view.title(sectionCollectionConfig.title || entity.config.label);
+
+      if (sectionCollectionConfig.description) {
+        view.description(sectionCollectionConfig.description);
+      }
+
+      // add fields to view
       for (var fieldName in fields) {
         if (!sectionCollectionConfig.fields || sectionCollectionConfig.fields.indexOf(fieldName) >= 0) {
+
+          // dashboard has detail links by default
+          if (section == 'dashboard') {
+            fields[fieldName].isDetailLink(true);
+          }
+
           view.addField(fields[fieldName]);
         }
       }
 
       // list view: actions
-      if (sectionCollectionConfig.actions) {
+      if (section == 'list') {
         view.listActions(sectionCollectionConfig.actions);
+      }
+
+      // dashboard view: limit
+      if (section == 'dashboard') {
+        if (sectionCollectionConfig.limit) {
+          view.limit(sectionCollectionConfig.limit);
+        }
+
+        // if (sectionCollectionConfig.sort) {
+        //   view.config.sortParams = {
+        //     params: {
+        //       _sort: sectionCollectionConfig.sort[0],
+        //       _sortDir: sectionCollectionConfig.sort[1]
+        //     }
+        //   };
+        // }
+
       }
     }
 

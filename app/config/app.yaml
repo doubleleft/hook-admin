@@ -15,8 +15,9 @@ collections:
 
     dashboard:
       title: Últimos projetos
-      description: Hello there!
+      sort: ['_id', 'desc'] # isn't working
       fields: ['name']
+      limit: 5
 
     list:
       description: Hello there!
