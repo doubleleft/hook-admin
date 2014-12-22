@@ -1,7 +1,10 @@
 var YAML = require('yamljs'),
     app = angular.module('admin', ['ng-admin']),
     appConfig = YAML.load('config/app.yaml'),
-    schema = YAML.load('hook-ext/schema.yaml');
+    schema = YAML.load('hook-ext/schema.yaml'),
+    inflection = require('inflection');
+
+var fieldTypes = require('./src/field_types');
 
 app.controller('main', function ($scope, $rootScope, $location) {
   $rootScope.$on('$stateChangeSuccess', function () {
@@ -47,15 +50,29 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
     return obj;
   });
 
+  //
+  // set-up all entities to allow referencing each other
+  //
+  var entities = {};
+  for (let collectionName in schema) {
+    entities[ collectionName ] = new Entity(collectionName);
+  }
+
   for (var collectionName in schema) {
     let collectionConfig = (appConfig.collections && appConfig.collections[collectionName]) || {};
 
+    // normalize collection view configs
+    if (typeof(collectionConfig) == "boolean") { collectionConfig = {}; }
+    if (!collectionConfig.list) { collectionConfig.list = {}; }
+    if (!collectionConfig.menu) { collectionConfig.menu = {}; }
+    if (!collectionConfig.dashboard) { collectionConfig.dashboard = {}; }
+
     // by default, allow 'show', 'edit' and 'delete' actions.
-    if (!collectionConfig.list || !collectionConfig.list.actions) {
+    if (!collectionConfig.list.actions) {
       collectionConfig.list.actions = ['show', 'edit', 'delete'];
     }
 
-    var entity = new Entity(collectionName);
+    let entity = entities[collectionName];
     entity.url(function(view, entityId) {
       return 'collection/' + view.entity.config.name + (entityId ? '/' + entityId : "");
     });
@@ -83,8 +100,33 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
     schema[collectionName].attributes.push({ name: 'created_at', type: 'date' });
     schema[collectionName].attributes.push({ name: 'updated_at', type: 'date' });
     for (var i=0;i<schema[collectionName].attributes.length;i++) {
-      var attribute = schema[collectionName].attributes[i];
-      fields[ attribute.name ] = new Field(attribute.name).type(attribute.type);
+      let attribute = schema[collectionName].attributes[i];
+      fields[ attribute.name ] = new Field(attribute.name).type(fieldTypes.get(attribute.type));
+    }
+
+    // schema relationships
+    if (schema[collectionName].relationships) {
+      let belongsToFields = schema[collectionName].relationships.belongs_to,
+          hasManyFields = schema[collectionName].relationships.has_many;
+
+      if (belongsToFields) {
+        if (typeof(belongsToFields)==="string") { belongsToFields = [belongsToFields]; }
+        for (var i=0;i<belongsToFields.length;i++) {
+          let singular = inflection.singularize(belongsToFields[i]),
+              plural = inflection.pluralize(belongsToFields[i]);
+
+          let reference = new Reference(singular + "_id").
+            targetEntity(entities[plural]).
+            targetField(new Field('name')); // TODO: specify related collection 'title' column
+
+          fields[ belongsToFields[i] ] = reference;
+        }
+      }
+
+      if (hasManyFields) {
+        if (typeof(hasManyFields)==="string") { hasManyFields = [hasManyFields]; }
+      }
+
     }
 
     for (let section in sections) {
@@ -105,17 +147,22 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
         view.description(sectionCollectionConfig.description);
       }
 
-      // add fields to view
-      for (var fieldName in fields) {
-        if (!sectionCollectionConfig.fields || sectionCollectionConfig.fields.indexOf(fieldName) >= 0) {
+      //
+      // field ordering
+      //
+      // use 'fields' view attribute
+      // OR use schema order
+      //
+      var fieldNames = sectionCollectionConfig.fields || Object.keys(fields);
+      for (var i in fieldNames) {
+        let fieldName = fieldNames[i];
 
-          // dashboard has detail links by default
-          if (section == 'dashboard') {
-            fields[fieldName].isDetailLink(true);
-          }
-
-          view.addField(fields[fieldName]);
+        // dashboard has detail links by default
+        if (section == 'dashboard') {
+          fields[fieldName].isDetailLink(true);
         }
+
+        view.addField(fields[fieldName]);
       }
 
       // list view: actions
