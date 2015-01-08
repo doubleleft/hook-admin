@@ -12,7 +12,7 @@ app.controller('main', function ($scope, $rootScope, $location) {
   });
 });
 
-app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
+app.config(function(RestangularProvider, NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
   var hook = new Hook.Client(appConfig.credentials);
 
   // set the main API endpoint for this admin
@@ -20,24 +20,33 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
   document.title = appConfig.title;
 
   app.baseApiUrl(appConfig.credentials.endpoint);
-  app.transformParams(function(params) {
+
+  // Customize request via RestangularProvider
+  RestangularProvider.addFullRequestInterceptor(function(
+    element, operation, what, url, headers, params, httpConfig
+  ) {
+    headers['X-App-Id'] = appConfig.credentials.app_id;
+    headers['X-App-Key'] = appConfig.credentials.key;
+
     var q = hook.collection('dummy');
 
+    console.log(params)
+
     // sorting
-    if (params._sort) {
-      q.sort(params._sort, params._sortDir.toLowerCase());
+    if (params._sortField) {
+      q.sort(params._sortField, params._sortDir.toLowerCase());
     }
 
     // pagination with offset / limit
-    if (params.per_page) { q.limit(params.per_page); }
-    if (params.page > 0 && params.per_page) { q.offset(params.per_page * (params.page - 1)) }
+    if (params._perPage) { q.limit(params._perPage); }
+    if (params._page > 0 && params._perPage) { q.offset(params._perPage * (params._page - 1)) }
 
-    // // quick filters
-    // if (params.where) {
-    //   for (let field in params.where) {
-    //     q.where(field, params.where[field]);
-    //   }
-    // }
+    // quick filters
+    if (params._filters) {
+      for (let field in params._filters) {
+        q.where(field, params._filters[field]);
+      }
+    }
 
     // ng-admin hack to use JSON on query string
     var obj = {},
@@ -47,7 +56,7 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
       obj[""] = "&" + query;
     }
 
-    return obj;
+    return { params: obj };
   });
 
   //
@@ -58,7 +67,7 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
     entities[ collectionName ] = new Entity(collectionName);
   }
 
-  for (var collectionName in schema) {
+  for (let collectionName in schema) {
     let collectionConfig = (appConfig.collections && appConfig.collections[collectionName]) || {};
 
     // normalize collection view configs
@@ -117,7 +126,10 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
 
           let reference = new Reference(singular + "_id").
             targetEntity(entities[plural]).
-            targetField(new Field('name')); // TODO: specify related collection 'title' column
+            targetField(new Field('name')). // TODO: specify related collection 'title' column
+            .singleApiCall(function(ids) {
+              return { _id: ids };
+            });
 
           fields[ belongsToFields[i] ] = reference;
         }
@@ -132,14 +144,6 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
     for (let section in sections) {
       let view = sections[section],
           sectionCollectionConfig = collectionConfig[section] || {};
-
-      // default app headers
-      view.headers(function() {
-        return {
-          'X-App-Id': appConfig.credentials.app_id,
-          'X-App-Key': appConfig.credentials.key
-        }
-      });
 
       view.title(sectionCollectionConfig.title || entity.config.label);
 
@@ -175,18 +179,20 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
         if (sectionCollectionConfig.limit) {
           view.limit(sectionCollectionConfig.limit);
         }
-
-        // if (sectionCollectionConfig.sort) {
-        //   view.config.sortParams = {
-        //     params: {
-        //       _sort: sectionCollectionConfig.sort[0],
-        //       _sortDir: sectionCollectionConfig.sort[1]
-        //     }
-        //   };
-        // }
-
       }
     }
+
+    // sections['list'].addQuickFilter('Today', function () { // a quick filter displays a button to filter the list based on a set of query parameters passed to the API
+    //   var now = new Date(),
+    //       year = now.getFullYear(),
+    //       month = now.getMonth() + 1,
+    //       day = now.getDate();
+    //       month = month < 10 ? '0' + month : month;
+    //       day = day < 10 ? '0' + day : day;
+    //   return {
+    //     created_at: [year, month, day].join('-') // ?created_at=... will be appended to the API call
+    //   };
+    // });
 
     // menu view: icon
     if (collectionConfig.menu) {
