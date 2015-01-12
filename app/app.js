@@ -127,7 +127,7 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
           let reference = new Reference(singular + "_id").
             targetEntity(entities[plural]).
             targetField(new Field('name')). // TODO: specify related collection 'title' column
-            .singleApiCall(function(ids) {
+            singleApiCall(function(ids) {
               return { _id: ids };
             });
 
