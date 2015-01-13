@@ -1,0 +1,9 @@
+#
+# Seed for auths
+#
+truncate: true
+data:
+  - email: edreyer@doubleleft.com
+    password: 123
+  - email: endel@doubleleft.com
+    password: 123

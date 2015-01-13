@@ -1,13 +1,18 @@
 title: "hook-admin"
 
 credentials:
-  endpoint: http://hook.ddll.co/
-  app_id: 17
-  key: 8521120d9e5c7473229f036f6381a886
+  endpoint: http://localhost:4665/
+  app_id: 3
+  key: 94eecceccc3f5c2a077deb1a1b6c9777
 
 collections:
+
   projects:
     label: Projetos
+
+    filters:
+      - name
+      - client_name
 
     menu:
       icon: file
@@ -22,4 +27,4 @@ collections:
     list:
       description: Hello there!
       actions: ['show', 'edit', 'delete']
-      fields: ['name', 'client_name']
+      fields: ['name', 'client_name', 'auth']

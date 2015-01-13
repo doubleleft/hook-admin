@@ -1,4 +1,12 @@
 #
+# 'auths' schema
+#
+auths:
+  relationships:
+    has_many:
+      - projects
+
+#
 # 'projects' schema
 #
 projects:
@@ -12,15 +20,21 @@ projects:
     - name: description
       type: string
       required: true
-    - name: href
-      type: string
-      required: true
     - name: highlights
       type: boolean
       default: false
-    - name: thumb_image
+    - name: image
       type: string
-    - name: large_image
-      type: string
-    - name: logo_image
-      type: string
+  relationships:
+    belongs_to:
+      - auth
+    has_many:
+      - comments
+
+#
+# 'comments' schema
+#
+comments:
+  relationships:
+    belongs_to:
+      - auth

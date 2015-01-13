@@ -1,0 +1,17 @@
+# Setup a pepper to generate the encrypted password.
+# auth_pepper: af24f09e80496a392524f18885cb808ff3039fb3
+
+# Whitelist of allowed host origins
+allowed_origins:
+  - '*'
+
+auth_roles:
+  - admin
+
+# collection permissions
+collections:
+  events:
+    crud: all
+
+  auths:
+    crud: admin
