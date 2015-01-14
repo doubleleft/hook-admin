@@ -1,7 +1,7 @@
 var YAML = require('yamljs'),
     app = angular.module('admin', ['ng-admin']),
     appConfig = YAML.load('config/app.yaml'),
-    schema_builder = require('./src/schema_builder'),
+    schemaBuilder = require('./src/schema/builder'),
     filters = require('./src/filters'),
     actions = require('./src/actions'),
     inflection = require('inflection');
@@ -21,7 +21,7 @@ function aggregateIds(ids) {
 
 app.config(function(RestangularProvider, NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
   var hook = new Hook.Client(appConfig.credentials),
-      schema = schema_builder("hook-ext/schema.yaml");
+      schema = schemaBuilder("hook-ext/schema.yaml");
 
   // set the main API endpoint for this admin
   var app = new Application(appConfig.title);
@@ -30,11 +30,15 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
   app.baseApiUrl(appConfig.credentials.endpoint);
 
   // Set default application headers
-  RestangularProvider.setDefaultHeaders({
+  var authToken = hook.auth.getToken();
+  var headers = {
     'X-App-Id': appConfig.credentials.app_id,
-    'X-App-Key': appConfig.credentials.key,
-    'X-Auth-Token': hook.auth.getToken()
-  });
+    'X-App-Key': appConfig.credentials.key
+  };
+  if (authToken) {
+    headers['X-Auth-Token'] = authToken;
+  }
+  RestangularProvider.setDefaultHeaders(headers);
 
   // Customize request via RestangularProvider
   RestangularProvider.addFullRequestInterceptor(function(
@@ -86,13 +90,16 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
   //
   // set-up all entities to allow referencing each other
   //
-  var entities = {};
+  var entities = {},
+      configs = {};
+
   for (let name in schema) {
     entities[ inflection.pluralize(name) ] = new Entity(name);
+    configs[ inflection.pluralize(name) ] = (appConfig.collections && appConfig.collections[name]) || {};
   }
 
   for (let name in schema) {
-    let config = (appConfig.collections && appConfig.collections[name]) || {};
+    let config = configs[name];
     let entity = entities[name];
 
     // normalize collection view configs
@@ -135,9 +142,10 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       for (var i=0;i<belongsTo.length;i++) {
         let singular = inflection.singularize(belongsTo[i]),
             plural = inflection.pluralize(belongsTo[i]),
+            label_field = configs[plural].label_field || schema[plural][0].name,
             reference = new Reference(singular + "_id").
               targetEntity(entities[plural]).
-              targetField(new Field('name')). // TODO: specify related collection 'title' column
+              targetField(new Field(label_field)).
               singleApiCall(aggregateIds);
 
         fields[ belongsTo[i] ] = reference;
@@ -150,9 +158,10 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       for (var i=0;i<hasMany.length;i++) {
         let singular = inflection.singularize(hasMany[i]),
             plural = inflection.pluralize(hasMany[i]),
+            label_field = configs[plural].label_field || schema[plural][0].name,
             reference = new ReferenceMany(plural).
               targetEntity(entities[plural]).
-              targetField(new Field('name')). // TODO: specify related collection 'title' column
+              targetField(new Field(label_field)).
               singleApiCall(aggregateIds);
 
         fields[ hasMany[i] ] = reference;

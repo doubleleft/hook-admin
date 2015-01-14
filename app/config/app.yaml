@@ -6,6 +6,8 @@ credentials:
   key: 94eecceccc3f5c2a077deb1a1b6c9777
 
 collections:
+  auths:
+    label_field: email
 
   projects:
     label: Projetos
