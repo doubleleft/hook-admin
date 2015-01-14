@@ -2,7 +2,12 @@ var YAML = require('yamljs'),
     app = angular.module('admin', ['ng-admin']),
     appConfig = YAML.load('config/app.yaml'),
     schema_builder = require('./src/schema_builder'),
+    filters = require('./src/filters'),
+    actions = require('./src/actions'),
     inflection = require('inflection');
+
+// register default filters
+filters.register('like', require('./src/filters/like'));
 
 app.controller('main', function ($scope, $rootScope, $location) {
   $rootScope.$on('$stateChangeSuccess', function () {
@@ -49,7 +54,13 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     // quick filters
     if (params._filters) {
       for (let field in params._filters) {
-        q.where(field, params._filters[field]);
+        if (typeof(params._filters[field]) === "object" &&
+            params._filters[field].operation) {
+          q.where(field, params._filters[field].operation, params._filters[field].value);
+
+        } else {
+          q.where(field, params._filters[field]);
+        }
       }
     }
 
@@ -113,6 +124,9 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     for (var i=0;i<schema[name].length;i++) {
       let attribute = schema[name][i];
       fields[ attribute.name ] = new Field(attribute.name).type(attribute.type);
+      if (attribute.choices) {
+        fields[ attribute.name ].choices(attribute.choices);
+      }
     }
 
     // relationships: belongsTo
@@ -200,25 +214,24 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     }
 
     if (config['filters']) {
-      let filters = config['filters'];
-      for (let i in filters) {
-        sections['list'].filters([
-          fields[ filters[i] ]
-        ])
+      for (let i=0; i<config['filters'].length; i++) {
+        let data = config['filters'][i],
+            filter = filters.get(data.type),
+            field = angular.copy(fields[ data.field ]);
+
+        if (data.label) {
+          field.label(data.label);
+        }
+
+        if (filter) {
+          field.map(function(value, entry) {
+            return filter(data.field, value, entry);
+          });
+        }
+
+        sections['list'].filters([ field ]);
       }
     }
-
-    // sections['list'].addQuickFilter('Today', function () { // a quick filter displays a button to filter the list based on a set of query parameters passed to the API
-    //   var now = new Date(),
-    //       year = now.getFullYear(),
-    //       month = now.getMonth() + 1,
-    //       day = now.getDate();
-    //       month = month < 10 ? '0' + month : month;
-    //       day = day < 10 ? '0' + day : day;
-    //   return {
-    //     created_at: [year, month, day].join('-') // ?created_at=... will be appended to the API call
-    //   };
-    // });
 
     // menu view: icon
     if (config.menu) {

@@ -11,8 +11,12 @@ collections:
     label: Projetos
 
     filters:
-      - name
-      - client_name
+      - field: highlights
+        label: With highlight
+      - field: name
+        type: like
+      - field: client_name
+        type: like
 
     menu:
       icon: file
@@ -27,4 +31,4 @@ collections:
     list:
       description: Hello there!
       actions: ['show', 'edit', 'delete']
-      fields: ['name', 'client_name', 'auth']
+      # fields: ['name', 'client_name', 'auth']

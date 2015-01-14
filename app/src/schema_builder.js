@@ -30,6 +30,20 @@ module.exports = function(path) {
         if (config[name].attributes[i].type) {
           config[name].attributes[i].type = fieldTypes.get(config[name].attributes[i].type);
         }
+
+        // translate 'allowed' schema option to ng-admin compatible 'choices'
+        if (config[name].attributes[i].type == "choices") {
+          let allowed = config[name].attributes[i].allowed,
+              choices = [];
+          for (let i=0; i<allowed.length; i++) {
+            choices.push({
+              label: allowed[i],
+              value: allowed[i]
+            })
+          }
+          config[name].attributes[i].choices = choices;
+          delete config[name].attributes[i].allowed;
+        }
       }
 
     }
