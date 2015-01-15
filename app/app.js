@@ -4,24 +4,28 @@ var YAML = require('yamljs'),
     schemaBuilder = require('./src/schema/builder'),
     filters = require('./src/filters'),
     actions = require('./src/actions'),
-    inflection = require('inflection');
+    inflection = require('inflection'),
+    hook = new Hook.Client(appConfig.credentials);
+
+window.hook = hook;
 
 // register default filters
 filters.register('like', require('./src/filters/like'));
 
-app.controller('main', function ($scope, $rootScope, $location) {
-  $rootScope.$on('$stateChangeSuccess', function () {
-    $scope.displayBanner = $location.$$path === '/dashboard';
-  });
-});
+require('./src/authentication')(app, hook);
 
 function aggregateIds(ids) {
   return (ids && ids.length > 0) ? { _id: ids } : {};
 }
 
+app.controller("main", function ($scope, $rootScope, $location) {
+  $rootScope.$on("$stateChangeSuccess", function () {
+    $scope.displayBanner = $location.$$path === "/dashboard";
+  });
+});
+
 app.config(function(RestangularProvider, NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
-  var hook = new Hook.Client(appConfig.credentials),
-      schema = schemaBuilder("hook-ext/schema.yaml");
+  var schema = schemaBuilder("hook-ext/schema.yaml");
 
   // set the main API endpoint for this admin
   var app = new Application(appConfig.title);
@@ -39,6 +43,14 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     headers['X-Auth-Token'] = authToken;
   }
   RestangularProvider.setDefaultHeaders(headers);
+
+  // // custom template
+  // app.customTemplate(function(viewName) {
+  //   console.log(viewName);
+  //   // if (viewName === 'ListView') {
+  //   //   return myTemplate;
+  //   // }
+  // });
 
   // Customize request via RestangularProvider
   RestangularProvider.addFullRequestInterceptor(function(
@@ -208,17 +220,19 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
         view.addField(fields[fieldName]);
       }
 
-      // list view: actions
+      // list view
+      // - actions
       if (section == 'list') {
         view.listActions(sectionConfig.actions);
         view.perPage(sectionConfig.per_page || 30);
       }
 
-      // dashboard view: limit
+      // dashboard view
+      // - limit
+      // - order
       if (section == 'dashboard') {
-        if (sectionConfig.limit) {
-          view.limit(sectionConfig.limit);
-        }
+        if (sectionConfig.limit) { view.limit(sectionConfig.limit); }
+        if (sectionConfig.order) { view.order(sectionConfig.order); }
       }
     }
 
