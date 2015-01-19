@@ -114,7 +114,7 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     let entity = entities[name];
 
     // normalize collection view configs
-    if (typeof(config) == "boolean") { config = {}; }
+    if (!config || (typeof(config) == "boolean")) { config = {}; }
     if (!config.list) { config.list = {}; }
     if (!config.menu) { config.menu = {}; }
     if (!config.dashboard) { config.dashboard = {}; }
@@ -153,13 +153,15 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       for (var i=0;i<belongsTo.length;i++) {
         let singular = inflection.singularize(belongsTo[i]),
             plural = inflection.pluralize(belongsTo[i]),
-            label_field = configs[plural].label_field || schema[plural][0].name,
-            reference = new Reference(singular + "_id").
-              targetEntity(entities[plural]).
-              targetField(new Field(label_field)).
-              singleApiCall(aggregateIds);
+            label_field = (configs[plural] && configs[plural].label_field) ||
+              (schema[plural] && schema[plural][0] && schema[plural][0].name);
 
-        fields[ belongsTo[i] ] = reference;
+        if (label_field) {
+          fields[ belongsTo[i] ] = new Reference(singular + "_id").
+            targetEntity(entities[plural]).
+            targetField(new Field(label_field)).
+            singleApiCall(aggregateIds);
+        }
       }
     }
 
@@ -169,15 +171,35 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       for (var i=0;i<hasMany.length;i++) {
         let singular = inflection.singularize(hasMany[i]),
             plural = inflection.pluralize(hasMany[i]),
-            label_field = configs[plural].label_field || schema[plural][0].name,
-            reference = new ReferenceMany(plural).
-              targetEntity(entities[plural]).
-              targetField(new Field(label_field)).
-              singleApiCall(aggregateIds);
+            label_field = (configs[plural] && configs[plural].label_field) ||
+              (schema[plural] && schema[plural][0] && schema[plural][0].name);
 
-        fields[ hasMany[i] ] = reference;
+        if (label_field) {
+          fields[ hasMany[i] ] = new ReferenceMany(plural).
+            targetEntity(entities[plural]).
+            targetField(new Field(label_field)).
+            singleApiCall(aggregateIds);
+        }
+
       }
     }
+
+    //
+    // Configure collection fields
+    //
+    if (config.fields) {
+      for (let field in config.fields) {
+        if (typeof(field)==="object" && field.name) {
+
+          // custom field label
+          if (field.label) { fields[field.name].label(field.label); }
+
+        }
+      }
+    }
+
+    // Don't configure section views if it's configured as hidden.
+    if (config.hide) continue;
 
     //
     // Configure each section
@@ -204,19 +226,22 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       //
       // field ordering
       //
-      // use 'fields' view attribute
-      // OR use schema order
+      // use 'fields' view attribute OR use schema order
       //
-      var fieldNames = sectionConfig.fields || Object.keys(fields);
-      for (var i in fieldNames) {
-        let fieldName = fieldNames[i];
+      let sectionFields = sectionConfig.fields || config.fields || Object.keys(fields);
+      for (var i in sectionFields) {
+        let field = typeof(sectionFields[i])==="string" ? { name: sectionFields[i] } : sectionFields[i];
+
+        // TODO: DRY
+        // custom field label
+        if (field.label) { fields[field.name].label(field.label); }
 
         // dashboard has detail links by default
         if (section == 'dashboard') {
-          fields[fieldName].isDetailLink(true);
+          fields[field.name].isDetailLink(true);
         }
 
-        view.addField(fields[fieldName]);
+        view.addField(fields[field.name]);
       }
 
       // list view
@@ -256,8 +281,8 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     }
 
     // menu view: icon
-    if (config.menu) {
-      let menu = config.menu;
+    let menu = config.menu;
+    if (menu) {
       if (menu.icon) {
         entity.menuView().icon('<span class="glyphicon glyphicon-' + menu.icon + '"></span>');
       }
