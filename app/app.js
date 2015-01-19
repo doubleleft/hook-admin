@@ -1,13 +1,12 @@
 var YAML = require('yamljs'),
     app = angular.module('admin', ['ng-admin']),
-    appConfig = YAML.load('config/app.yaml'),
+    appConfig = require('./config/app.yaml'),
     schemaBuilder = require('./src/schema/builder'),
     filters = require('./src/filters'),
     actions = require('./src/actions'),
     inflection = require('inflection'),
-    hook = new Hook.Client(appConfig.credentials);
-
-window.hook = hook;
+    hook = new Hook.Client(appConfig.credentials),
+    schemaYaml = require(process.env.HOOK_SCHEMA);
 
 // register default filters
 filters.register('like', require('./src/filters/like'));
@@ -25,7 +24,7 @@ app.controller("main", function ($scope, $rootScope, $location) {
 });
 
 app.config(function(RestangularProvider, NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
-  var schema = schemaBuilder("hook-ext/schema.yaml");
+  var schema = schemaBuilder(schemaYaml);
 
   // set the main API endpoint for this admin
   var app = new Application(appConfig.title);

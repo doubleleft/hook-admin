@@ -21,8 +21,6 @@ module.exports = function(app, hook) {
 
   // Go to login form if user isn't logged in
   app.run(function($rootScope, $location, $state){
-    console.log($location);
-
     // listen to logout
     hook.auth.on('logout', function() {
       hideMenu();

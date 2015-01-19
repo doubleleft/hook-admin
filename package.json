@@ -4,26 +4,30 @@
   "description": "hook administrator interface",
   "main": "app/app.js",
   "dependencies": {
-    "lazy-assets": "^0.1.8",
-    "yamljs": "~0.2.1",
-    "hook-javascript": "~0.2.0"
+    "hook-javascript": "~0.2.0",
+    "lazy-assets": "^0.1.8"
   },
   "devDependencies": {
     "browserify": "~4.1.5",
     "brfs": "~1.2.0",
+    "envify": "~3.2",
     "6to5ify": "~2.0.0",
-    "inflection": "~1.5.3"
+    "inflection": "~1.5.3",
+    "browserify-data": "^0.2.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "lazy-assets app --port 3001",
-    "build": "lazy-assets app public --port 3001"
+    "watch": "HOOK_SCHEMA=./hook-ext/schema.yaml lazy-assets app --port 3001",
+    "build": "HOOK_SCHEMA=./hook-ext/schema.yaml lazy-assets app public --port 3001"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/doubleleft/hook-admin.git"
   },
-  "keywords": [ "hook", "admin" ],
+  "keywords": [
+    "hook",
+    "admin"
+  ],
   "author": "Endel Dreyer",
   "license": "MIT",
   "bugs": {

@@ -13,9 +13,7 @@ function parseRelations(relationships) {
   return relationships;
 }
 
-module.exports = function(path) {
-  var config = YAML.load(path);
-
+module.exports = function(config) {
   var entities = {};
 
   for (let name in config) {
