@@ -5,7 +5,7 @@
   "main": "app/app.js",
   "dependencies": {
     "hook-javascript": "~0.2.0",
-    "lazy-assets": "^0.1.8"
+    "lazy-assets": "^0.1.10"
   },
   "devDependencies": {
     "browserify": "~4.1.5",
@@ -18,7 +18,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "HOOK_SCHEMA=./hook-ext/schema.yaml lazy-assets app --port 3001",
-    "build": "HOOK_SCHEMA=./hook-ext/schema.yaml lazy-assets app public --port 3001"
+    "build": "HOOK_SCHEMA=../hook-ext/schema.yaml lazy-assets . public && cp -avR bower_components/bootstrap-sass-official public/bootstrap-sass-official"
   },
   "repository": {
     "type": "git",

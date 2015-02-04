@@ -18,11 +18,12 @@ var fieldTypeMap = {
   'big_integer': "number",
   'medium_integer': "number",
   'tiny_integer': "number",
-  'small_integer': "number"
+  'small_integer': "number",
+  'wysiwyg': "wysiwyg"
 };
 
 module.exports = {
   get: function(type) {
-    return (fieldTypeMap[type] || type);
+    return (fieldTypeMap[type] || type || "string");
   }
 }

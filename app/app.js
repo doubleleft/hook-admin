@@ -59,6 +59,7 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
 
     // sorting
     if (params._sortField) {
+      if (params._sortField=="id") { params._sortField = "_id"; }
       q.sort(params._sortField, params._sortDir.toLowerCase());
     }
 
@@ -234,14 +235,16 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
 
         // TODO: DRY
         // custom field label
-        if (field.label) { fields[field.name].label(field.label); }
+        if (fields[field.name]) {
+          if (field.label) { fields[field.name].label(field.label); }
 
-        // dashboard has detail links by default
-        if (section == 'dashboard') {
-          fields[field.name].isDetailLink(true);
+          // dashboard has detail links by default
+          if (section == 'dashboard') {
+            fields[field.name].isDetailLink(true);
+          }
+
+          view.addField(fields[field.name]);
         }
-
-        view.addField(fields[field.name]);
       }
 
       // list view
@@ -281,11 +284,10 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     }
 
     // menu view: icon
-    let menu = config.menu;
+    let defaultIcon = 'list',
+        menu = config.menu || { icon: defaultIcon };
     if (menu) {
-      if (menu.icon) {
-        entity.menuView().icon('<span class="glyphicon glyphicon-' + menu.icon + '"></span>');
-      }
+      entity.menuView().icon('<span class="fa fa-' + (menu.icon || defaultIcon) + '"></span>');
       if (menu.order) {
         entity.menuView().order(menu.order);
       }
