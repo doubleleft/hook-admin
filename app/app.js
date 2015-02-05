@@ -1,5 +1,4 @@
-var YAML = require('yamljs'),
-    app = angular.module('admin', ['ng-admin']),
+var app = angular.module('admin', ['ng-admin']),
     appConfig = require('./config/app.yaml'),
     schemaBuilder = require('./src/schema/builder'),
     filters = require('./src/filters'),
@@ -12,6 +11,7 @@ var YAML = require('yamljs'),
 filters.register('like', require('./src/filters/like'));
 
 require('./src/authentication')(app, hook);
+require('./src/fields')(app, hook);
 
 function aggregateIds(ids) {
   return (ids && ids.length > 0) ? { _id: ids } : {};
@@ -24,7 +24,7 @@ app.controller("main", function ($scope, $rootScope, $location) {
 });
 
 app.config(function(RestangularProvider, NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
-  var schema = schemaBuilder(schemaYaml);
+  var schema = schemaBuilder(schemaYaml, appConfig.collections || {});
 
   // set the main API endpoint for this admin
   var app = new Application(appConfig.title);
@@ -117,7 +117,6 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     // normalize collection view configs
     if (!config || (typeof(config) == "boolean")) { config = {}; }
     if (!config.list) { config.list = {}; }
-    if (!config.menu) { config.menu = {}; }
     if (!config.dashboard) { config.dashboard = {}; }
 
     // by default, allow 'show', 'edit' and 'delete' actions.
@@ -143,9 +142,19 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
     for (var i=0;i<schema[name].length;i++) {
       let attribute = schema[name][i];
       fields[ attribute.name ] = new Field(attribute.name).type(attribute.type);
-      if (attribute.choices) {
-        fields[ attribute.name ].choices(attribute.choices);
-      }
+      if (attribute.template) { fields[ attribute.name ].template(attribute.template); }
+      if (attribute.choices) { fields[ attribute.name ].choices(attribute.choices); }
+
+      // //
+      // // TODO: reference relationship fields
+      // //
+      // if (attribute.name.indexOf('.') > 0) {
+      //   let field = attribute.name.split(".");
+      //   fields[ attribute.name ] = new Reference(fields[1]).
+      //     targetEntity(entities[ inflection.pluralize(field[0]) ]).
+      //     targetField(new Field(fields[1])).
+      //     singleApiCall(aggregateIds);
+      // }
     }
 
     // relationships: belongsTo
@@ -230,12 +239,16 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       // use 'fields' view attribute OR use schema order
       //
       let sectionFields = sectionConfig.fields || config.fields || Object.keys(fields);
+      let sectionSort = sectionConfig.sort || config.sort || { '_id': 'asc' },
+          sortField = Object.keys(sectionSort)[0],
+          sortDir = sectionSort[ sortField ];
+
       for (var i in sectionFields) {
         let field = typeof(sectionFields[i])==="string" ? { name: sectionFields[i] } : sectionFields[i];
 
-        // TODO: DRY
-        // custom field label
         if (fields[field.name]) {
+          // TODO: DRY
+          // custom field label
           if (field.label) { fields[field.name].label(field.label); }
 
           // dashboard has detail links by default
@@ -251,6 +264,8 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       // - actions
       if (section == 'list') {
         view.listActions(sectionConfig.actions);
+        view.sortField(sortField);
+        view.sortDir(sortDir);
         view.perPage(sectionConfig.per_page || 30);
       }
 
@@ -258,6 +273,8 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
       // - limit
       // - order
       if (section == 'dashboard') {
+        view.sortField(sortField);
+        view.sortDir(sortDir);
         if (sectionConfig.limit) { view.limit(sectionConfig.limit); }
         if (sectionConfig.order) { view.order(sectionConfig.order); }
       }
@@ -265,7 +282,7 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
 
     if (config['filters']) {
       for (let i=0; i<config['filters'].length; i++) {
-        let data = config['filters'][i],
+        let data = (typeof(config['filters'][i]) == "string") ? { field: config['filters'][i] } : config['filters'][i],
             filter = filters.get(data.type),
             field = angular.copy(fields[ data.field ]);
 
@@ -285,9 +302,9 @@ app.config(function(RestangularProvider, NgAdminConfigurationProvider, Applicati
 
     // menu view: icon
     let defaultIcon = 'list',
-        menu = config.menu || { icon: defaultIcon };
+        menu = config.menu || { icon: config.icon || defaultIcon };
     if (menu) {
-      entity.menuView().icon('<span class="fa fa-' + (menu.icon || defaultIcon) + '"></span>');
+      entity.menuView().icon('<span class="glyphicon glyphicon-' + (menu.icon || defaultIcon) + '"></span>');
       if (menu.order) {
         entity.menuView().order(menu.order);
       }
