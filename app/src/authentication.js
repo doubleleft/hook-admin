@@ -1,5 +1,9 @@
 module.exports = function(app, hook) {
-  var headerNav, pageWrapper;
+  var headerNav, pageWrapper, restangular;
+
+  if (hook.auth.currentUser && hook.auth.currentUser.role != 'admin') {
+    hook.auth.logout();
+  }
 
   function hideMenu() {
     headerNav = document.querySelector('#header-nav');

@@ -15,7 +15,13 @@ module.exports = function(config, appCollections) {
     if (!entities[name]) {
       entities[name] = new Entity(name);
     }
-    entities[name].merge(appCollections[name].fields || []);
+
+    // force hide collection
+    if (appCollections[name] === false) {
+      delete entities[name];
+    } else {
+      entities[name].merge(appCollections[name].fields || []);
+    }
   }
 
   for (let name in entities) {
