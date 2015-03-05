@@ -1,5 +1,4 @@
-var YAML = require('yamljs'),
-    inflection = require('inflection'),
+var inflection = require('inflection'),
     fieldTypes = require('./field_types'),
     Entity = require('./entity');
 

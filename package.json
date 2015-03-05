@@ -5,15 +5,13 @@
   "main": "app/app.js",
   "dependencies": {
     "hook-javascript": "~0.2.0",
-    "lazy-assets": "^0.1.10"
-  },
-  "devDependencies": {
+    "lazy-assets": "^0.1.10",
     "browserify": "~4.1.5",
     "brfs": "~1.2.0",
     "envify": "~3.2",
     "6to5ify": "~2.0.0",
     "inflection": "~1.5.3",
-    "browserify-data": "^0.2.0"
+    "browserify-data": "~0.2.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

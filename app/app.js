@@ -24,13 +24,14 @@ app.controller("main", function ($scope, $rootScope, $location) {
   });
 });
 
-app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Reference, ReferencedList, ReferenceMany) {
+app.config(function(NgAdminConfigurationProvider) {
+  var nga = NgAdminConfigurationProvider;
   var schema = schemaBuilder(schemaYaml, appConfig.collections || {});
 
   // set the main API endpoint for this admin
-  var app = new Application(appConfig.title);
+  var app = nga.application(appConfig.title);
   document.title = appConfig.title;
-  app.baseApiUrl(appConfig.credentials.endpoint);
+  app.baseApiUrl(appConfig.credentials.endpoint + "/collection/");
 
   //
   // set-up all entities to allow referencing each other
@@ -39,7 +40,7 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
       configs = {};
 
   for (let name in schema) {
-    entities[ inflection.pluralize(name) ] = new Entity(name);
+    entities[ inflection.pluralize(name) ] = nga.entity(name);
     configs[ inflection.pluralize(name) ] = (appConfig.collections && appConfig.collections[name]) || {};
   }
 
@@ -57,10 +58,15 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
       config.list.actions = ['show', 'edit', 'delete'];
     }
 
+    if (!entity) {
+      console.log("Missing config for entity: ", name);
+      continue;
+    }
+
     entity.url(function(view, entityId) {
-      return 'collection/' + view.entity.config.name + (entityId ? '/' + entityId : "");
+      return view.entity.config.name + (entityId ? '/' + entityId : "");
     });
-    entity.identifier(new Field('_id'));
+    entity.identifier(nga.field('_id'));
 
     // overwrite label
     if (config.label) {
@@ -74,7 +80,7 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
     var fields = {};
     for (var i=0;i<schema[name].length;i++) {
       let attribute = schema[name][i];
-      fields[ attribute.name ] = new Field(attribute.name).type(attribute.type);
+      fields[ attribute.name ] = nga.field(attribute.name, attribute.type);
       if (attribute.template) { fields[ attribute.name ].template(attribute.template); }
       if (attribute.choices) { fields[ attribute.name ].choices(attribute.choices); }
 
@@ -83,9 +89,9 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
       // //
       // if (attribute.name.indexOf('.') > 0) {
       //   let field = attribute.name.split(".");
-      //   fields[ attribute.name ] = new Reference(fields[1]).
+      //   fields[ attribute.name ] = nga.field(fields[1], 'reference').
       //     targetEntity(entities[ inflection.pluralize(field[0]) ]).
-      //     targetField(new Field(fields[1])).
+      //     targetField(nga.field(fields[1])).
       //     singleApiCall(aggregateIds);
       // }
     }
@@ -100,9 +106,9 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
               (schema[plural] && schema[plural][0] && schema[plural][0].name);
 
         if (label_field) {
-          fields[ belongsTo[i] ] = new Reference(singular + "_id").
+          fields[ belongsTo[i] ] = nga.field(singular + "_id", 'reference').
             targetEntity(entities[plural]).
-            targetField(new Field(label_field)).
+            targetField(nga.field(label_field)).
             singleApiCall(aggregateIds);
         }
       }
@@ -118,9 +124,9 @@ app.config(function(NgAdminConfigurationProvider, Application, Entity, Field, Re
               (schema[plural] && schema[plural][0] && schema[plural][0].name);
 
         if (label_field) {
-          fields[ hasMany[i] ] = new ReferenceMany(plural).
+          fields[ hasMany[i] ] = nga.field(plural, 'reference_many').
             targetEntity(entities[plural]).
-            targetField(new Field(label_field)).
+            targetField(nga.field(label_field)).
             singleApiCall(aggregateIds);
         }
 
