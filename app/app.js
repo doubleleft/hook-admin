@@ -40,9 +40,16 @@ app.config(function(NgAdminConfigurationProvider) {
       configs = {};
 
   for (let name in schema) {
-    entities[ inflection.pluralize(name) ] = nga.entity(name);
+    let entity = nga.entity(name).
+      identifier(nga.field('_id')).
+      url(function(view, entityId) {
+        return view.entity.config.name + (entityId ? '/' + entityId : "");
+      });
+
+    entities[ inflection.pluralize(name) ] = entity;
     configs[ inflection.pluralize(name) ] = (appConfig.collections && appConfig.collections[name]) || {};
   }
+
 
   for (let name in schema) {
     let config = configs[name];
@@ -62,11 +69,6 @@ app.config(function(NgAdminConfigurationProvider) {
       console.log("Missing config for entity: ", name);
       continue;
     }
-
-    entity.url(function(view, entityId) {
-      return view.entity.config.name + (entityId ? '/' + entityId : "");
-    });
-    entity.identifier(nga.field('_id'));
 
     // overwrite label
     if (config.label) {
