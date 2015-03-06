@@ -83,8 +83,16 @@ app.config(function(NgAdminConfigurationProvider) {
     for (var i=0;i<schema[name].length;i++) {
       let attribute = schema[name][i];
       fields[ attribute.name ] = nga.field(attribute.name, attribute.type);
+
       if (attribute.template) { fields[ attribute.name ].template(attribute.template); }
       if (attribute.choices) { fields[ attribute.name ].choices(attribute.choices); }
+
+      // type: reference
+      if (attribute.target_entity && attribute.target_field) {
+        fields[ attribute.name ].targetEntity(entities[attribute.target_entity]);
+        fields[ attribute.name ].targetField(nga.field(attribute.target_field));
+        fields[ attribute.name ].singleApiCall(aggregateIds);
+      }
 
       // //
       // // TODO: reference relationship fields
