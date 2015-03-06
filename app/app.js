@@ -244,7 +244,10 @@ app.config(function(NgAdminConfigurationProvider) {
     // menu view: icon
     let defaultIcon = 'list',
         menu = config.menu || { icon: config.icon || defaultIcon };
-    if (menu) {
+    if (config.menu === false) {
+      entity.menuView().disable();
+
+    } else {
       entity.menuView().icon('<span class="glyphicon glyphicon-' + (menu.icon || defaultIcon) + '"></span>');
       if (menu.order) {
         entity.menuView().order(menu.order);
