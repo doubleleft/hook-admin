@@ -7,11 +7,22 @@ top of [marmelab/ng-admin](https://github.com/marmelab/ng-admin).
 How to use
 ---
 
+Install dependencies:
+
 ```
 npm install
-npm run watch # development (first request takes some time to download bower
-dependencies)
-npm run build # production
+```
+
+Development mode:
+
+```
+npm start
+```
+
+Production build:
+
+```
+gulp build
 ```
 
 License
