@@ -1,11 +1,13 @@
 var app = angular.module('admin', ['ng-admin']),
-    appConfig = require('./config/app.yaml'),
+    appConfig = require('../config/app.yaml'),
     schemaBuilder = require('./src/schema/builder'),
     filters = require('./src/filters'),
     actions = require('./src/actions'),
     inflection = require('inflection'),
     hook = new Hook.Client(appConfig.credentials),
-    schemaYaml = require(process.env.HOOK_SCHEMA);
+    schemaYaml = require('../../hook-ext/schema.yaml');
+
+window.hook = hook;
 
 // register default filters
 filters.register('like', require('./src/filters/like'));
@@ -43,7 +45,7 @@ app.config(function(NgAdminConfigurationProvider) {
     let entity = nga.entity(name).
       identifier(nga.field('_id')).
       url(function(view, entityId) {
-        return view.entity.config.name + (entityId ? '/' + entityId : "");
+        return view.entity.name() + (entityId ? '/' + entityId : "");
       });
 
     entities[ inflection.pluralize(name) ] = entity;
@@ -72,7 +74,7 @@ app.config(function(NgAdminConfigurationProvider) {
 
     // overwrite label
     if (config.label) {
-      entity.config.label = config.label;
+      entity.label(config.label);
     }
 
     //
@@ -164,23 +166,22 @@ app.config(function(NgAdminConfigurationProvider) {
     // Configure each section
     //
     var sections = {
-      'dashboard': entity.config.dashboardView,
-      'list': entity.config.listView,
-      'show': entity.config.showView,
-      'creation': entity.config.creationView,
-      'edition': entity.config.editionView,
-      'deletion': entity.config.deletionView
+      'dashboard': entity.dashboardView(),
+      'list': entity.listView(),
+      'show': entity.showView(),
+      'creation': entity.creationView(),
+      'edition': entity.editionView(),
+      'deletion': entity.deletionView()
     };
 
     for (let section in sections) {
       let view = sections[section],
           sectionConfig = config[section] || {};
 
-      view.title(sectionConfig.title || entity.config.label);
-
-      if (sectionConfig.description) {
-        view.description(sectionConfig.description);
-      }
+      // view.title(sectionConfig.title || entity.label);
+      // if (sectionConfig.description) {
+      //   view.description(sectionConfig.description);
+      // }
 
       //
       // field ordering
@@ -252,15 +253,16 @@ app.config(function(NgAdminConfigurationProvider) {
     // menu view: icon
     let defaultIcon = 'list',
         menu = config.menu || { icon: config.icon || defaultIcon };
-    if (config.menu === false) {
-      entity.menuView().disable();
 
-    } else {
-      entity.menuView().icon('<span class="glyphicon glyphicon-' + (menu.icon || defaultIcon) + '"></span>');
-      if (menu.order) {
-        entity.menuView().order(menu.order);
-      }
-    }
+    // if (config.menu === false) {
+    //   entity.menuView().disable();
+    //
+    // } else {
+    //   entity.menuView().icon('<span class="glyphicon glyphicon-' + (menu.icon || defaultIcon) + '"></span>');
+    //   if (menu.order) {
+    //     entity.menuView().order(menu.order);
+    //   }
+    // }
 
     app.addEntity(entity);
   }

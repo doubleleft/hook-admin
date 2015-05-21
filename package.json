@@ -1,35 +1,48 @@
 {
-  "name": "hook-admin",
-  "version": "1.0.0",
-  "description": "hook administrator interface",
-  "main": "app/app.js",
-  "dependencies": {
-    "hook-javascript": "~0.2.0",
-    "lazy-assets": "^0.1.10",
-    "browserify": "~4.1.5",
-    "brfs": "~1.2.0",
-    "envify": "~3.2",
-    "6to5ify": "~2.0.0",
-    "inflection": "~1.5.3",
-    "browserify-data": "~0.2.0"
+  "private": true,
+  "engines": {
+    "node": ">=0.12.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "HOOK_SCHEMA=./hook-ext/schema.yaml lazy-assets app --port 3001",
-    "build": "HOOK_SCHEMA=../hook-ext/schema.yaml lazy-assets . public && cp -avR bower_components/bootstrap-sass-official public/bootstrap-sass-official"
+    "start": "gulp serve"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/doubleleft/hook-admin.git"
+  "dependencies": {
+    "inflection": "~1.5.3"
   },
-  "keywords": [
-    "hook",
-    "admin"
-  ],
-  "author": "Endel Dreyer",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/doubleleft/hook-admin/issues"
-  },
-  "homepage": "https://github.com/doubleleft/hook-admin"
+  "devDependencies": {
+    "autoprefixer-core": "^5.1.7",
+    "browser-sync": "^2.2.1",
+    "del": "^1.1.1",
+    "through2": "~0.6.3",
+    "browserify": "~9.0.3",
+    "browserify-data": "^0.2.0",
+    "babelify": "~5.0.4",
+    "gulp": "^3.8.11",
+    "gulp-postcss": "^4.0.3",
+
+
+    "gulp-stylus": "^2.0.1",
+
+
+
+    "gulp.spritesmith": "~3.3.1",
+
+
+    "gulp-cache": "^0.2.8",
+    "gulp-csso": "^1.0.0",
+    "gulp-if": "^1.2.5",
+    "gulp-imagemin": "^2.2.1",
+    "gulp-jshint": "^1.9.2",
+    "gulp-load-plugins": "^0.8.1",
+    "gulp-minify-html": "^1.0.0",
+    "gulp-size": "^1.2.1",
+    "gulp-sourcemaps": "^1.5.0",
+    "gulp-uglify": "^1.1.0",
+    "gulp-useref": "^1.1.1",
+    "gulp-babel": "~4.0.0",
+    "jshint-stylish": "^1.0.1",
+    "main-bower-files": "^2.5.0",
+    "opn": "^1.0.1",
+    "wiredep": "^2.2.2"
+  }
 }

@@ -2,8 +2,8 @@ title: "hook-admin"
 
 credentials:
   endpoint: http://localhost:4665/
-  app_id: 3
-  key: '94eecceccc3f5c2a077deb1a1b6c9777'
+  app_id: 38
+  key: 'ccceb37dd9ea6947fba819259602b5e4'
 
 collections:
   auths:
