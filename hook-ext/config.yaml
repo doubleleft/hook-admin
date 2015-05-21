@@ -1,0 +1,7 @@
+# Auth configs
+auth:
+  token_expiration: 24 # in hours
+
+# Email configs
+email:
+  from: no-reply@domain.com

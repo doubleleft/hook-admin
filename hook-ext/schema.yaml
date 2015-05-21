@@ -1,0 +1,40 @@
+#
+# 'auths' schema
+#
+auths:
+  relationships:
+    has_many:
+      - projects
+
+#
+# 'projects' schema
+#
+projects:
+  attributes:
+    - name: name
+      type: string
+      required: true
+    - name: client_name
+      type: string
+      required: true
+    - name: description
+      type: string
+      required: true
+    - name: highlights
+      type: boolean
+      default: false
+    - name: image
+      type: string
+  relationships:
+    belongs_to:
+      - auth
+    has_many:
+      - comments
+
+#
+# 'comments' schema
+#
+comments:
+  relationships:
+    belongs_to:
+      - auth

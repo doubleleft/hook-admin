@@ -1,0 +1,37 @@
+title: "hook-admin"
+
+credentials:
+  endpoint: http://localhost:4665/
+  app_id: 38
+  key: 'ccceb37dd9ea6947fba819259602b5e4'
+
+collections:
+  auths:
+    label_field: email
+
+  projects:
+    label: Projetos
+    filters:
+      - field: highlights
+        label: With highlight
+      - field: name
+        type: like
+      - field: client_name
+        type: like
+    sort:
+      highlights: asc
+
+    menu:
+      icon: file
+      order: 1
+
+    dashboard:
+      title: Últimos projetos
+      sort: ['_id', 'desc'] # isn't working
+      fields: ['name']
+      limit: 5
+
+    list:
+      description: Hello there!
+      actions: ['show', 'edit', 'delete']
+      # fields: ['name', 'client_name', 'auth']

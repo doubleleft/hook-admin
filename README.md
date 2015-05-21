@@ -1,77 +1,31 @@
 hook-admin
-==========
-Administrative interface built on top of [hook-javascript](https://github.com/doubleleft/hook-javascript) and [Bootstrap](http://getbootstrap.com/).
+===
 
-Setup
------
-Note that NodeJS (`brew install nodejs`) and Ruby 2.0 are required.
-    
-    bundle install
-    npm install -g brunch
-    npm install
+Administrator interface for [hook](https://github.com/doubleleft/hook). Built on
+top of [marmelab/ng-admin](https://github.com/marmelab/ng-admin).
 
-Development
------------
+How to use
+---
 
-    bundle exec brunch watch --server
+Install dependencies:
 
+```
+npm install
+```
 
-Open your development server at [http://localhost:3333](). Remember auto-reload is enabled by default, so any changes to the project will refresh your browser.
+Development mode:
 
+```
+npm start
+```
 
-### API Environment for Development
+Production build:
 
-By default this project uses the `hook-admin-ddll` app.
+```
+gulp build
+```
 
-The default login credentials are:
+License
+---
 
-    username: admin@doubleleft.com
-    password: 123
-
-Example
--------
-
-Use `app/assets/index.html` and `app/app.coffee` as a starting point.
-
-The syntax is the same for CoffeeScript and JavaScript usage.
-
-
-    // Initialize hook
-    window.dl = new DL.Client( ......  )
-
-    // Create new hook-admin instance
-    admin = new DLAdmin()
-
-    // Add your models
-    admin.addModel(
-      {
-        name: "Categorias",
-        collection: "dlacategories", 
-        editable: true,
-        fields: [
-          {name:"name", label: "Nome", type:"text"}, 
-          {name:"description", label: "Description", type:"text", multiLine: true}
-        ],
-        relationships: [
-          {type: "has_many", collection: "dlaposts", sourceField:"_id", targetField: "category_id"}
-        ]
-      }
-    )
-
-    admin.addModel(
-      {
-        name: "Artigos",
-        collection: "dlaposts",
-        editable: true,
-        fields: [
-          {name:"text", type:"text", multiLine: true},
-          {name:"image", type:"image"}
-        ],
-        relationships: [
-          {type: "belongs_to", collection: "dlacategories", sourceField:"category_id", targetField: "_id"}
-        ]
-      }
-    )
-
-    // Initialize hook-admin after models have been set
-    admin.init()
+MIT

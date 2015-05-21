@@ -1,0 +1,11 @@
+#
+# Seed for auths
+#
+truncate: true
+data:
+  - email: edreyer@doubleleft.com
+    password: 123
+    role: admin
+  - email: endel@doubleleft.com
+    password: 123
+    role: admin
