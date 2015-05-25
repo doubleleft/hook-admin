@@ -4,8 +4,8 @@ var app = angular.module('admin', ['ng-admin']),
     filters = require('./src/filters'),
     actions = require('./src/actions'),
     inflection = require('inflection'),
-    hook = new Hook.Client(appConfig.credentials),
-    schemaYaml = require('../../hook-ext/schema.yaml');
+    hook = new Hook.Client(JSON.parse(process.env.HOOK_CONFIG)),
+    schemaYaml = JSON.parse(process.env.HOOK_SCHEMA);
 
 window.hook = hook;
 
@@ -33,7 +33,8 @@ app.config(function(NgAdminConfigurationProvider) {
   // set the main API endpoint for this admin
   var app = nga.application(appConfig.title);
   document.title = appConfig.title;
-  app.baseApiUrl(appConfig.credentials.endpoint + "/collection/");
+
+  app.baseApiUrl(hook.endpoint + "/collection/");
 
   //
   // set-up all entities to allow referencing each other

@@ -1,23 +1,16 @@
 title: "hook-admin"
 
-credentials:
-  endpoint: http://localhost:4665/
-  app_id: 38
-  key: 'ccceb37dd9ea6947fba819259602b5e4'
-
 collections:
   auths:
     label_field: email
 
   projects:
-    label: Projetos
+    label: My projects
     filters:
-      - field: highlights
-        label: With highlight
       - field: name
         type: like
-      - field: client_name
-        type: like
+      - field: highlight
+        label: With highlight
     sort:
       highlights: asc
 
@@ -26,7 +19,7 @@ collections:
       order: 1
 
     dashboard:
-      title: Últimos projetos
+      title: Last projects
       sort: ['_id', 'desc'] # isn't working
       fields: ['name']
       limit: 5

@@ -12,6 +12,19 @@ var reload = browserSync.reload;
 var through2 = require('through2');
 var browserify = require('browserify');
 
+var YAML = require('yamljs');
+
+var ENVIRONMENT = process.env.ENVIRONMENT || 'development';
+var hookConfigFile = process.env.HOOK_EXT + '/credentials/' + ENVIRONMENT + '/browser.json';
+
+if (!fs.existsSync(hookConfigFile)) {
+  console.error("Missing browser credentials file: '" + hookConfigFile + "'");
+  process.exit();
+} else {
+  process.env.HOOK_CONFIG = fs.readFileSync(hookConfigFile);
+  process.env.HOOK_SCHEMA = JSON.stringify(YAML.load(process.env.HOOK_EXT + '/schema.yaml'));
+}
+
 gulp.task('stylesheet', ['sprites'], function () {
   return gulp.src('app/css/main.styl')
     .pipe($.sourcemaps.init())
@@ -58,6 +71,7 @@ gulp.task('javascript', function () {
       browserify(file.path)
       .transform('babelify')
       .transform('browserify-data')
+      .transform('envify')
       .bundle(function(err, res){
         if (err) { return next(err); }
 

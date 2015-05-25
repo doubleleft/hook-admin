@@ -1,0 +1,20 @@
+#
+# Seed for projects
+#
+truncate: true
+data:
+  - _id: 1
+    name: Client one
+    description: Description
+    highlight: true
+    auth_id: 1
+  - _id: 2
+    name: Client two
+    description: Description two
+    highlight: false
+    auth_id: 1
+  - _id: 3
+    name: Client three
+    description: Description three
+    highlight: true
+    auth_id: 1

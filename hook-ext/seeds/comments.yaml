@@ -1,0 +1,23 @@
+#
+# Seed for projects
+#
+truncate: true
+data:
+  - text: Comment 1 for project 1
+    project_id: 1
+    auth_id: 2
+  - text: Comment 2 for project 1
+    project_id: 1
+    auth_id: 2
+  - text: Comment 3 for project 1
+    project_id: 1
+    auth_id: 2
+  - text: Comment 1 for project 2
+    project_id: 2
+    auth_id: 2
+  - text: Comment 2 for project 2
+    project_id: 2
+    auth_id: 2
+  - text: Comment 1 for project 3
+    project_id: 3
+    auth_id: 2
