@@ -4,7 +4,7 @@ hook-admin
 Administrator interface for [hook](https://github.com/doubleleft/hook). Built on
 top of [marmelab/ng-admin](https://github.com/marmelab/ng-admin).
 
-[![screenshot.png](screenshot.png)]()
+[![screenshot.png](screenshot.png)](screenshot.png)
 
 Features
 ---
@@ -27,7 +27,7 @@ You need to specify your target `hook-ext` directory on `HOOK_EXT` environment
 variable. For testing purpose, use the relative [./hook-ext](hook-ext) on this
 repository.
 
-Production build:
+**Production build:**
 
 ```
 gulp build
