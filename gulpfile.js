@@ -157,13 +157,13 @@ gulp.task('serve', ['stylesheet', 'javascript', 'fonts'], function () {
   // watch for changes
   gulp.watch([
     'app/*.html',
-    'app/js/**/*.js',
+    '.tmp/js/*.js',
     'app/images/**/*',
     '.tmp/fonts/**/*'
   ]).on('change', reload);
 
   gulp.watch('app/css/**/*.styl', ['stylesheet']);
-  gulp.watch('app/js/**/*.js', ['javascript']);
+  gulp.watch(['app/js/**/*.js','app/config/app.yaml'], ['javascript']);
   gulp.watch('app/fonts/**/*', ['fonts']);
   gulp.watch('bower.json', ['wiredep', 'fonts']);
 });
