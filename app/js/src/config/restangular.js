@@ -32,6 +32,17 @@ module.exports = function(app, hook) {
     ) {
       var q = hook.collection('dummy');
 
+      //
+      // don't send 'password' when it doesn't have a value
+      //
+      // TODO:
+      // remove this when password field features is complete
+      // https://github.com/marmelab/ng-admin/issues/526
+      //
+      if (what === "auths" && operation === "put" && !element.password) {
+        delete element.password;
+      }
+
       // sorting
       if (params._sortField) {
         if (params._sortField=="id") { params._sortField = "_id"; }
