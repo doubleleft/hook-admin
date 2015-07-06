@@ -1,18 +1,34 @@
 /*global -$ */
 'use strict';
 // generated on 2015-04-28 using generator-modern-frontend 0.1.2
-var fs = require('fs');
-var path = require('path');
+var fs = require('fs')
+  , path = require('path')
 
-var gulp = require('gulp');
-var $ = require('gulp-load-plugins')();
-var browserSync = require('browser-sync');
-var reload = browserSync.reload;
+  , gulp = require('gulp')
+  , $ = require('gulp-load-plugins')()
 
-var through2 = require('through2');
-var browserify = require('browserify');
+  , through2 = require('through2')
+  , browserify = require('browserify')
+  , YAML = require('yamljs')
 
-var YAML = require('yamljs');
+  , browserSync = require('browser-sync')
+  , reload = browserSync.reload
+
+  , distPath = process.env.DIST_PATH || 'dist';
+
+// Auto-detect 'hook-ext' directory
+if (!process.env.HOOK_EXT) {
+  var stats, alternatives = ['../hook-ext', './hook-ext'];
+  for (var i=0; i<alternatives.length; i++) {
+    try {
+      stats = fs.statSync(alternatives[i]);
+      if (stats.isDirectory()) {
+        process.env.HOOK_EXT = alternatives[i];
+        break;
+      }
+    } catch (e) {}
+  }
+}
 
 var ENVIRONMENT = process.env.ENVIRONMENT || 'development';
 var hookConfigFile = process.env.HOOK_EXT + '/credentials/' + ENVIRONMENT + '/browser.json';
@@ -57,7 +73,7 @@ gulp.task('sprites', function() {
     // Pipe image stream
     spriteData.img
       .pipe(gulp.dest('.tmp/images'))
-      .pipe(gulp.dest('dist/images'))
+      .pipe(gulp.dest(distPath + '/images'))
 
     // Pipe CSS stream
     spriteData.css
@@ -87,7 +103,7 @@ gulp.task('javascript', function () {
     // .pipe($.uglify())
     .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest('.tmp/js'))
-    .pipe(gulp.dest('dist/js'));
+    .pipe(gulp.dest(distPath + '/js'));
 });
 
 gulp.task('jshint', function () {
@@ -103,12 +119,12 @@ gulp.task('html', ['stylesheet'], function () {
 
   return gulp.src('app/*.html')
     .pipe(assets)
-    .pipe($.if('*.js', $.uglify()))
+    // .pipe($.if('*.js', $.uglify()))
     .pipe($.if('*.css', $.csso()))
     .pipe(assets.restore())
     .pipe($.useref())
     .pipe($.if('*.html', $.minifyHtml({conditionals: true, loose: true})))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest(distPath));
 });
 
 gulp.task('images', function () {
@@ -120,7 +136,7 @@ gulp.task('images', function () {
       // as hooks for embedding and styling
       svgoPlugins: [{cleanupIDs: false}]
     })))
-    .pipe(gulp.dest('dist/images'));
+    .pipe(gulp.dest(distPath + '/images'));
 });
 
 gulp.task('fonts', function () {
@@ -128,7 +144,7 @@ gulp.task('fonts', function () {
     filter: '**/*.{eot,svg,ttf,woff,woff2}'
   }).concat('app/fonts/**/*'))
     .pipe(gulp.dest('.tmp/fonts'))
-    .pipe(gulp.dest('dist/fonts'));
+    .pipe(gulp.dest(distPath + '/fonts'));
 });
 
 gulp.task('extras', function () {
@@ -137,10 +153,10 @@ gulp.task('extras', function () {
     '!app/*.html'
   ], {
     dot: true
-  }).pipe(gulp.dest('dist'));
+  }).pipe(gulp.dest(distPath));
 });
 
-gulp.task('clean', require('del').bind(null, ['.tmp', 'dist']));
+gulp.task('clean', require('del').bind(null, ['.tmp', distPath]));
 
 gulp.task('serve', ['stylesheet', 'javascript', 'fonts'], function () {
   browserSync({
@@ -173,7 +189,7 @@ gulp.task('serve:dist', function () {
     notify: false,
     port: 9000,
     server: {
-      baseDir: ['dist']
+      baseDir: [distPath]
     }
   });
 });
@@ -196,8 +212,8 @@ gulp.task('wiredep', function () {
     .pipe(gulp.dest('app'));
 });
 
-gulp.task('build', ['jshint', 'html', 'images', 'fonts', 'extras'], function () {
-  return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
+gulp.task('build', ['html', 'images', 'fonts', 'extras'], function () {
+  return gulp.src(distPath + '/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 
 gulp.task('default', ['clean'], function () {
