@@ -197,6 +197,12 @@ app.config(function(NgAdminConfigurationProvider) {
       for (var i in sectionFields) {
         let field = typeof(sectionFields[i])==="string" ? { name: sectionFields[i] } : sectionFields[i];
 
+        // Only creation and edition views are allowed for 'password' fields
+        if (fields[field.name].type() == "password" && (section !== 'creation' && section !== 'edition')) {
+          // Skip on readable views
+          continue;
+        }
+
         if (fields[field.name]) {
           // TODO: DRY
           // custom field label
