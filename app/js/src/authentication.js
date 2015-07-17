@@ -1,7 +1,7 @@
 module.exports = function(app, hook) {
   var headerNav, pageWrapper, restangular;
 
-  if (hook.auth.currentUser && hook.auth.currentUser.role != 'admin') {
+  if (hook.auth.currentUser && hook.auth.currentUser.role != 'trusted') {
     hook.auth.logout();
   }
 

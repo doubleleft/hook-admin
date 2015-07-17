@@ -5,6 +5,7 @@ truncate: true
 data:
   - email: admin@doubleleft.com
     password: 123
-    role: admin
+    role: trusted
+
   - email: user@doubleleft.com
     password: 123

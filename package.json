@@ -11,10 +11,12 @@
     "inflection": "~1.5.3"
   },
   "devDependencies": {
+    "bower": "~1.4.1",
     "autoprefixer-core": "^5.1.7",
     "babelify": "~5.0.4",
     "browser-sync": "^2.2.1",
     "browserify": "~9.0.3",
+    "browserify-data": "~0.2.0",
     "del": "^1.1.1",
     "envify": "^3.4.0",
     "gulp": "^3.8.11",

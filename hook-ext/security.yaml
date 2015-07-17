@@ -6,7 +6,7 @@ allowed_origins:
   - '*'
 
 auth_roles:
-  - admin
+  - trusted
 
 # collection permissions
 collections:
@@ -14,4 +14,5 @@ collections:
     crud: all
 
   auths:
-    crud: admin
+    crud: trusted
+    read: all

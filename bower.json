@@ -10,5 +10,13 @@
   },
   "resolutions": {
     "angular": "~1.3.8"
+  },
+  "overrides": {
+    "sass-bootstrap-glyphicons": {
+      "main": [
+        "css/bootstrap-glyphicons.css",
+        "fonts/*"
+      ]
+    }
   }
 }
