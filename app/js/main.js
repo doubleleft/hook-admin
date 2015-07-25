@@ -1,4 +1,4 @@
-var app = angular.module('admin', ['ng-admin']),
+var admin = angular.module('admin', ['ng-admin']),
     appConfig = require('../config/app.yaml'),
     schemaBuilder = require('./src/schema/builder'),
     filters = require('./src/filters'),
@@ -12,28 +12,28 @@ window.hook = hook;
 // register default filters
 filters.register('like', require('./src/filters/like'));
 
-require('./src/config/restangular')(app, hook);
-require('./src/authentication')(app, hook);
-require('./src/fields')(app, hook);
+require('./src/config/restangular')(admin, hook);
+require('./src/authentication')(admin, hook);
+require('./src/fields')(admin, hook);
 
 function aggregateIds(ids) {
   return (ids && ids.length > 0) ? { _id: ids } : {};
 }
 
-app.controller("main", function ($scope, $rootScope, $location) {
+admin.controller("main", function ($scope, $rootScope, $location) {
   $rootScope.$on("$stateChangeSuccess", function () {
     $scope.displayBanner = $location.$$path === "/dashboard";
   });
 });
 
-app.config(function(NgAdminConfigurationProvider) {
-  var nga = NgAdminConfigurationProvider;
-  var schema = schemaBuilder(schemaYaml, appConfig.collections || {});
+admin.config(function(NgAdminConfigurationProvider) {
+  var nga = NgAdminConfigurationProvider
+    , schema = schemaBuilder(schemaYaml, appConfig.collections || {})
+    , app = nga.application(appConfig.title); // set the main API endpoint for this admin
 
-  // set the main API endpoint for this admin
-  var app = nga.application(appConfig.title);
   document.title = appConfig.title;
 
+  // set the main API endpoint for this admin
   app.baseApiUrl(hook.endpoint + "/collection/");
 
   //
@@ -45,8 +45,9 @@ app.config(function(NgAdminConfigurationProvider) {
   for (let name in schema) {
     let entity = nga.entity(name).
       identifier(nga.field('_id')).
-      url(function(view, entityId) {
-        return view.entity.name() + (entityId ? '/' + entityId : "");
+      url(function(entityName, viewType, identifierValue, identifierName) {
+        return entityName + (identifierValue ? '/' + identifierValue : "");
+        // return '/comments/' + entityName + '_' + viewType + '/' + identifierValue;
       });
 
     entities[ inflection.pluralize(name) ] = entity;
@@ -83,7 +84,7 @@ app.config(function(NgAdminConfigurationProvider) {
     // https://github.com/doubleleft/hook/wiki/Schema-definition
     //
     var fields = {};
-    for (var i=0;i<schema[name].length;i++) {
+    for (let i=0;i<schema[name].length;i++) {
       let attribute = schema[name][i];
       fields[ attribute.name ] = nga.field(attribute.name, attribute.type);
 
@@ -112,16 +113,25 @@ app.config(function(NgAdminConfigurationProvider) {
     // relationships: belongsTo
     let belongsTo = schema[name].belongsTo;
     if (belongsTo) {
-      for (var i=0;i<belongsTo.length;i++) {
+      for (let i=0;i<belongsTo.length;i++) {
         let singular = inflection.singularize(belongsTo[i]),
             plural = inflection.pluralize(belongsTo[i]),
             label_field = (configs[plural] && configs[plural].label_field) ||
               (schema[plural] && schema[plural][0] && schema[plural][0].name);
 
         if (label_field) {
-          fields[ belongsTo[i] ] = nga.field(singular + "_id", 'reference').
+          let field = fields[ belongsTo[i] ] = nga.field(singular + "_id", 'reference').
             targetEntity(entities[plural]).
             targetField(nga.field(label_field)).
+            // filters(function(search) {
+            //   debugger
+            //   console.log(field)
+            //   return {
+            //     operation: "like",
+            //     value: "%" + search + "%"
+            //   }
+            // }).
+            // remoteComplete(true, { refreshDelay: 300 }).
             singleApiCall(aggregateIds);
         }
       }
@@ -274,5 +284,5 @@ app.config(function(NgAdminConfigurationProvider) {
     app.addEntity(entity);
   }
 
-  NgAdminConfigurationProvider.configure(app);
+  nga.configure(app);
 });

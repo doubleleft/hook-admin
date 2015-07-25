@@ -4,7 +4,7 @@
     "modernizr": "~2.8.3",
     "normalize-css": "~3.0.2",
     "angular": "~1.3.7",
-    "ng-admin": "~0.7.0",
+    "ng-admin": "marmelab/ng-admin#fff704493eece3a4f3bfc76a221caffd82b6e0ce",
     "hook-javascript": "~0.3.0",
     "sass-bootstrap-glyphicons": "~1.0.0"
   },
